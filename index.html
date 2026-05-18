@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Entidade - Protocolo Sudoku</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
+</head>
+<body>
+
+<div id="app" v-cloak>
+    <div class="header-panel">
+        <h1>A Entidade: Protocolo Sudoku</h1>
+    </div>
+
+    <div class="game-container">
+        <div :class="['status-terminal', { 'compromised': entidadeVenceu }]">
+            <div><strong>STATUS DO SISTEMA:</strong></div>
+            <div style="margin-top: 5px;">
+                <span v-if="entidadeVenceu">⚠️ [ALERTA CRÍTICO]: </span>
+                <span>{{ mensagemStatus }}</span><span class="blink">_</span>
+            </div>
+        </div>
+
+        <div :class="['sudoku-grid', { 'compromised': entidadeVenceu }]">
+            <div 
+                v-for="(cell, index) in flatBoard" 
+                :key="index"
+                :class="[ 'cell', { 
+                    'fixed': cell.isFixed, 
+                    'user-filled': !cell.isFixed && cell.value !== 0,
+                    'selected': selectedRow === cell.row && selectedCol === cell.col && !entidadeVenceu,
+                    'selected-compromised': selectedRow === cell.row && selectedCol === cell.col && entidadeVenceu,
+                    'border-right': cell.col === 2 || cell.col === 5,
+                    'border-bottom': cell.row === 2 || cell.row === 5
+                }]"
+                @click="selecionarCelula(cell.row, cell.col)"
+            >
+                <span v-if="cell.value !== 0" class="cell-value">{{ cell.value }}</span>
+                <div v-else-if="getNotasArray(cell.row, cell.col).length > 0" class="notes-container">
+                    <div v-for="n in 9" :key="n" class="note-digit">
+                        {{ idxTemNota(cell.row, cell.col, n) ? n : '' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="action-row">
+                <button :class="{ 'active-mode': modoNotas }" :disabled="entidadeVenceu" @click="alternarModoNotas">
+                    🔧 Suporte (Notas)
+                </button>
+                <button @click="reiniciarAmbiente">🔄 Reiniciar</button>
+            </div>
+            <div class="num-pad">
+                <button v-for="num in 9" :key="num" class="num-btn" :disabled="entidadeVenceu || selectedRow === null" @click="inserirEntrada(num)">
+                    {{ num }}
+                </button>
+                <button class="num-btn clear-btn" :disabled="entidadeVenceu || selectedRow === null" @click="limparCelula">X</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="panel-title">📟 Logs de Execução</div>
+        <div class="terminal-logs">
+            <div v-for="(log, idx) in logs" :key="idx">
+                <span class="log-time">[{{ log.time }}]</span>
+                <span :class="log.type === 'error' ? 'log-error' : log.type === 'info' ? 'log-info' : 'log-system'">{{ log.text }}</span>
+            </div>
+        </div>
+
+        <div class="panel-title" style="margin-top: 10px;">📋 Mapeamento IA Responsável</div>
+        <div class="theory-item"><div class="theory-title">1. A Luta contra o Algoritmo</div>Ecossistema preditivo estrito vs janelas de ação humana.</div>
+        <div class="theory-item"><div class="theory-title">2. O Método da Eliminação</div>Exclusão sistemática de impossibilidades para evitar vieses.</div>
+        <div class="theory-item"><div class="theory-title">3. O Tabuleiro Global</div>Falhas isoladas geram efeito cascata ético e operacional.</div>
+        <div class="theory-item"><div class="theory-title">4. Fator Humano</div>Supervisão (human-in-the-loop) para validar contexto histórico.</div>
+    </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
